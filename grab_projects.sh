@@ -25,7 +25,7 @@ git_grab(){
 }
 
 cd /vagrant
-mkdir -p repositories
+mkdir -p /vagrant/repositories
 
 key_not_found=$(ssh-keygen -q -H -F github.com)
 if [ -z "$key_not_found" ]; then

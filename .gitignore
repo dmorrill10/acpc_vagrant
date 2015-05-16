@@ -1,0 +1,12 @@
+cookbooks
+log
+tmp
+vendor
+db
+dump.rdb
+.yardoc
+doc
+repositories
+*.lock
+.vagrant
+tmp

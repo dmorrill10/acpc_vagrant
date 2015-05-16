@@ -4,6 +4,28 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# Thanks to colinsurprenant for this
+# https://github.com/colinsurprenant/redstorm/blob/master/vagrant/Vagrantfile
+#
+# @param swap_size_mb [Integer] swap size in megabytes
+# @param swap_file [String] full path for swap file, default is /swapfile1
+# @return [String] the script text for shell inline provisioning
+def create_swap(swap_size_mb, swap_file = "/swapfile1")
+  <<-EOS
+    if [ ! -f #{swap_file} ]; then
+      echo "Creating #{swap_size_mb}mb swap file=#{swap_file}. This could take a while..."
+      dd if=/dev/zero of=#{swap_file} bs=1024 count=#{swap_size_mb * 1024}
+      mkswap #{swap_file}
+      chmod 0600 #{swap_file}
+      swapon #{swap_file}
+      if ! grep -Fxq "#{swap_file} swap swap defaults 0 0" /etc/fstab
+      then
+        echo "#{swap_file} swap swap defaults 0 0" >> /etc/fstab
+      fi
+    fi
+  EOS
+end
+
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/trusty64"
@@ -11,6 +33,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.network :forwarded_port, guest: 3000, host: 3000
   config.vm.network "private_network", ip: "10.10.10.10"
+
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
+  end
 
   provider = if ENV['VAGRANT_DEFAULT_PROVIDER'].nil? || ENV['VAGRANT_DEFAULT_PROVIDER'].empty?
     'virtualbox'
@@ -45,12 +71,17 @@ Vagrant.configure("2") do |config|
   end
   #------------------------------------------------------
 
+  %w(autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev libffi-dev).each do |l|
+    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
+  end
   config.vm.provision :chef_solo do |chef|
+    chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "11.18"
     chef.cookbooks_path = ["cookbooks"]
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
+    chef.add_recipe :readline
     chef.add_recipe :logrotate
     chef.add_recipe 'mongodb::default'
     chef.add_recipe 'sqlite'
@@ -60,9 +91,10 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'git'
     chef.add_recipe 'nodejs'
     chef.add_recipe 'ruby_build'
-    chef.add_recipe 'rbenv::system'
+    chef.add_recipe 'rbenv::user'
     chef.add_recipe 'rbenv::vagrant'
-    chef.add_recipe 'redis'
+    chef.add_recipe 'redisio'
+    chef.add_recipe 'redisio::enable'
     chef.json = {
       :mongodb    => {
         :dbpath  => "/var/lib/mongodb",
@@ -94,17 +126,20 @@ Vagrant.configure("2") do |config|
         :prefix => "/usr/local"
       },
       :rbenv      => {
-        :rubies => ["2.1.5"],
-        :global => "2.1.5",
-        :gems => {
-          "2.1.5" => [
-           { 'name' => 'bundler' },
-           { 'name' => 'pry' },
-           { 'name' => 'awesome_print' }
-          ]
-        }
+        :user_installs => [
+          :user => 'vagrant',
+          :rubies => ["2.1.6"],
+          :global => "2.1.6",
+          :gems => {
+            "2.1.6" => [
+             { 'name' => 'bundler' },
+             { 'name' => 'pry' },
+             { 'name' => 'awesome_print' }
+            ]
+          }
+        ]
       },
-      :redis      => {
+      :redisio      => {
         :bind        => "127.0.0.1",
         :port        => "6379",
         :config_path => "/etc/redis/redis.conf",
@@ -115,4 +150,5 @@ Vagrant.configure("2") do |config|
     }
   end
   config.vm.provision :shell, path: 'grab_projects.sh', privileged: false
+  config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
 end

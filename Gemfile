@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'bundler'
 gem 'librarian-chef'
+gem 'certified'
