@@ -24,6 +24,6 @@ Edit the paths in `grab_projects.sh` to retrieve your fork of the ACPC repositor
 7. Navigate to shared project directory, `cd /vagrant/repositories/acpc_poker_gui_client`
 8. Install gems, `bundle install`
 9. Compile the ACPC server project, `bundle exec acpc_dealer compile`
-10 Start background worker, `bundle exec sidekiq -r ./ -L ./log/sidekiq.log -t 1 &`
-11 Start the Rails server, `bundle exec rails s`
-12 Point your browser to `localhost:3000`, and you should see the match start screen. You should now be able to start a match. If that succeeds, congratulations, you've completed the set up!
+10. Start background worker, `bundle exec sidekiq -r ./ -L ./log/sidekiq.log -t 1 &`
+11. Start the Rails server, `bundle exec rails s`
+12. Point your browser to `localhost:3000`, and you should see the match start screen. You should now be able to start a match. If that succeeds, congratulations, you've completed the set up!
