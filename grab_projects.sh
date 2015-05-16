@@ -7,8 +7,10 @@ needs_stash() {
   [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"
 }
 
+root_dir=$1
+
 git_grab(){
-  DIR=/vagrant/repositories/`basename $1 .git`
+  DIR="$root_dir/repositories/`basename $1 .git`"
   if [ ! -d $DIR ]; then
   git clone $1 $DIR
   else
@@ -24,8 +26,8 @@ git_grab(){
   fi
 }
 
-cd /vagrant
-mkdir -p /vagrant/repositories
+cd $root_dir
+mkdir -p $root_dir/repositories
 
 key_not_found=$(ssh-keygen -q -H -F github.com)
 if [ -z "$key_not_found" ]; then
@@ -33,8 +35,16 @@ if [ -z "$key_not_found" ]; then
   ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 fi
 
-git_grab git@github.com:dmorrill10/acpc_poker_gui_client.git
-git_grab git@github.com:dmorrill10/acpc_dealer.git
-git_grab git@github.com:dmorrill10/acpc_poker_types.git
-git_grab git@github.com:dmorrill10/acpc_poker_basic_proxy.git
-git_grab git@github.com:dmorrill10/acpc_poker_player_proxy.git
+ssh -q git@github.com
+if [ "$?" -le "1" ]; then
+  git_grab git@github.com:dmorrill10/acpc_poker_gui_client.git
+  git_grab git@github.com:dmorrill10/acpc_dealer.git
+  git_grab git@github.com:dmorrill10/acpc_poker_types.git
+  git_grab git@github.com:dmorrill10/acpc_poker_basic_proxy.git
+  git_grab git@github.com:dmorrill10/acpc_poker_player_proxy.git
+else
+  echo "Unable to grab repositories from Github through ssh forwarding."
+  echo "Either load an ssh key registered with Github to your system's ssh key "
+  echo "agent and re-provision ('vagrant provision'), or download the desired "
+  echo "repositories manually inside the shared repositories directory."
+fi

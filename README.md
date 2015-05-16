@@ -16,7 +16,6 @@ Edit the paths in `grab_projects.sh` to retrieve your fork of the ACPC repositor
 2. Install Bundler, `gem install bundler`
 3. Install gems, `bundle install` in project root)
 4. Install cookbooks, `librarian-chef install`
-    - @todo Windows SSL error
 5. Start the virtual machine, `vagrant up`
     - This step could take tens of minutes
     - If connecting to the VM times out, but you can still manually connect to it afterwards, then run `vagrant halt` and `vagrant up` or `vagrant reload`. This occurred for me on Windows and vagrant was able to complete the VM setup after restarting.

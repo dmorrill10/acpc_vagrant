@@ -149,6 +149,6 @@ Vagrant.configure("2") do |config|
       }
     }
   end
-  config.vm.provision :shell, path: 'grab_projects.sh', privileged: false
+  config.vm.provision :shell, path: 'grab_projects.sh', args: '/vagrant/', privileged: false
   config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
 end
