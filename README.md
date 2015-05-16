@@ -12,7 +12,7 @@ Edit the paths in `grab_projects.sh` to retrieve your fork of the ACPC repositor
         1. Ruby 2.1.6
             - Ensure that the "Add Ruby executables to your PATH" is selected during installation so you can run the `gem` and `bundle` later.
         2. The corresponding DevKit
-            - @todo Tutorial
+            - Follow these (Quick Start)[https://github.com/oneclick/rubyinstaller/wiki/Development-Kit#quick-start] instructions.
 2. Install Bundler, `gem install bundler`
 3. Install gems, `bundle install` in project root)
 4. Install cookbooks, `librarian-chef install`
