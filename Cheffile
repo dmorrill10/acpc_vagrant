@@ -20,4 +20,7 @@ cookbook "ruby_build", '~> 0.8.0'
 cookbook 'rbenv',
   :git => 'git://github.com/fnichol/chef-rbenv.git', :ref => 'v0.7.2'
 cookbook 'samba'
-cookbook 'zsh'
+cookbook 'opencv', '~> 0.0.6'
+cookbook 'libxml2'
+cookbook 'cabal'
+cookbook 'opencv', '~> 0.0.6'

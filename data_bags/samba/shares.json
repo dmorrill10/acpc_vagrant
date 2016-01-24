@@ -1,6 +1,7 @@
-"id": "workspace",
+{
+  "id": "shares",
   "shares": {
-    "export": {
+    "workspace": {
       "path": "/home/vagrant/workspace",
       "available": "yes",
       "read only": "no",

@@ -36,6 +36,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
+    v.gui = true
   end
 
   provider = if ENV['VAGRANT_DEFAULT_PROVIDER'].nil? || ENV['VAGRANT_DEFAULT_PROVIDER'].empty?
@@ -75,7 +76,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision :shell, :inline => "apt-get install -y #{l}"
   end
   ruby_version = '2.3.1'
-  config.vm.provision :chef_solo do |chef|
+  config.vm.provision :chef_zero do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "11.18"
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
@@ -98,10 +99,11 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'redisio'
     chef.add_recipe 'redisio::enable'
     chef.add_recipe 'samba::default'
-    chef.add_recipe 'samba::server'
+    #chef.add_recipe 'samba::server'
     chef.add_recipe 'cabal'
     chef.add_recipe 'libxml2'
     chef.add_recipe 'libxml2::dev'
+    chef.add_recipe 'opencv'
 
     chef.json = {
       :mongodb    => {
