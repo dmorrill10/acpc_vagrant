@@ -1,0 +1,17 @@
+"id": "workspace",
+  "shares": {
+    "export": {
+      "path": "/home/vagrant/workspace",
+      "available": "yes",
+      "read only": "no",
+      "browseable": "yes",
+      "public": "yes",
+      "writable": "yes",
+      "guest ok": "Yes",
+      "create mask": "0755",
+      "directory mask": "0755",
+      "force user": "vagrant",
+      "force group": "vagrant"
+    }
+  }
+}

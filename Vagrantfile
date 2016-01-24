@@ -79,6 +79,7 @@ Vagrant.configure("2") do |config|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "11.18"
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
+    chef.data_bags_path = ["data_bags"]
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
@@ -98,6 +99,9 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'redisio::enable'
     chef.add_recipe 'samba::default'
     chef.add_recipe 'samba::server'
+    chef.add_recipe 'cabal'
+    chef.add_recipe 'libxml2'
+    chef.add_recipe 'libxml2::dev'
 
     chef.json = {
       :mongodb    => {
@@ -141,24 +145,6 @@ Vagrant.configure("2") do |config|
         :daemonize   => "yes",
         :timeout     => "300",
         :loglevel    => "notice"
-      },
-      :samba => {
-        :id => 'workspace',
-        :shares => {
-          :export => {
-            :path => '/home/vagrant/workspace',
-            :available => 'yes',
-            :'read only' => 'no',
-            :browseable => 'yes',
-            :public => 'yes',
-            :writable => 'yes',
-            :'guest ok' => 'Yes',
-            :'create mask' => '0755',
-            :'directory mask' => '0755',
-            :'force user' => 'vagrant',
-            :'force group' => 'vagrant'
-          }
-        }
       }
     }
   end
@@ -166,4 +152,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision :file, source: File.join(Dir.home, '.ssh'), destination: '/home/vagrant/.ssh'
   config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
   config.vm.provision :shell, path: 'install_python.sh', privileged: false
+  config.vm.provision :shell, inline: 'sudo apt-get install encfs'
+  config.vm.provision :shell, inline: 'sudo apt-get install zip cmake octave gnuplot'
 end
