@@ -74,20 +74,21 @@ Vagrant.configure("2") do |config|
   %w(autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev libffi-dev).each do |l|
     config.vm.provision :shell, :inline => "apt-get install -y #{l}"
   end
+  ruby_version = '2.3.1'
   config.vm.provision :chef_solo do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "11.18"
-    chef.cookbooks_path = ["cookbooks"]
+    chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
     chef.add_recipe :readline
+    chef.add_recipe :zsh
     chef.add_recipe :logrotate
     chef.add_recipe 'mongodb::default'
     chef.add_recipe 'sqlite'
     chef.add_recipe 'subversion'
     chef.add_recipe 'vim'
-    chef.add_recipe 'nginx'
     chef.add_recipe 'git'
     chef.add_recipe 'nodejs'
     chef.add_recipe 'ruby_build'
@@ -95,6 +96,9 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'rbenv::vagrant'
     chef.add_recipe 'redisio'
     chef.add_recipe 'redisio::enable'
+    chef.add_recipe 'samba::default'
+    chef.add_recipe 'samba::server'
+
     chef.json = {
       :mongodb    => {
         :dbpath  => "/var/lib/mongodb",
@@ -113,25 +117,16 @@ Vagrant.configure("2") do |config|
           "vim-rails"
         ]
       },
-      :nginx      => {
-        :dir                => "/etc/nginx",
-        :log_dir            => "/var/log/nginx",
-        :binary             => "/usr/sbin/nginx",
-        :user               => "www-data",
-        :init_style         => "runit",
-        :pid                => "/var/run/nginx.pid",
-        :worker_connections => "1024"
-      },
       :git        => {
         :prefix => "/usr/local"
       },
       :rbenv      => {
         :user_installs => [
           :user => 'vagrant',
-          :rubies => ["2.1.6"],
-          :global => "2.1.6",
+          :rubies => [ruby_version],
+          :global => ruby_version,
           :gems => {
-            "2.1.6" => [
+            ruby_version => [
              { 'name' => 'bundler' },
              { 'name' => 'pry' },
              { 'name' => 'awesome_print' }
@@ -146,9 +141,29 @@ Vagrant.configure("2") do |config|
         :daemonize   => "yes",
         :timeout     => "300",
         :loglevel    => "notice"
+      },
+      :samba => {
+        :id => 'workspace',
+        :shares => {
+          :export => {
+            :path => '/home/vagrant/workspace',
+            :available => 'yes',
+            :'read only' => 'no',
+            :browseable => 'yes',
+            :public => 'yes',
+            :writable => 'yes',
+            :'guest ok' => 'Yes',
+            :'create mask' => '0755',
+            :'directory mask' => '0755',
+            :'force user' => 'vagrant',
+            :'force group' => 'vagrant'
+          }
+        }
       }
     }
   end
-  config.vm.provision :shell, path: 'grab_projects.sh', args: '/vagrant/', privileged: false
   config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh'), destination: '/home/vagrant/.ssh'
+  config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
+  config.vm.provision :shell, path: 'install_python.sh', privileged: false
 end

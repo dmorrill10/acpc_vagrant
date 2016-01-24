@@ -1,30 +1,10 @@
 #!/bin/bash
 
-# Copied from blog post by Joe Hirn
-# https://www.devmynd.com/blog/2014-2-why-aren-t-you-using-vagrant#Cloning.repositories
+my_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-needs_stash() {
-  [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]] && echo "*"
-}
+source $my_dir/shell_functions.sh
 
 root_dir=$1
-
-git_grab(){
-  DIR="$root_dir/repositories/`basename $1 .git`"
-  if [ ! -d $DIR ]; then
-  git clone $1 $DIR
-  else
-    pushd $DIR
-    if needs_stash; then
-      git stash
-      git pull --quiet --rebase
-      git stash pop
-    else
-      git pull --quiet --rebase
-    fi
-    popd
-  fi
-}
 
 cd $root_dir
 mkdir -p $root_dir/repositories
@@ -37,11 +17,11 @@ fi
 
 ssh -q git@github.com
 if [ "$?" -le "1" ]; then
-  git_grab git@github.com:dmorrill10/acpc_poker_gui_client.git
-  git_grab git@github.com:dmorrill10/acpc_dealer.git
-  git_grab git@github.com:dmorrill10/acpc_poker_types.git
-  git_grab git@github.com:dmorrill10/acpc_poker_basic_proxy.git
-  git_grab git@github.com:dmorrill10/acpc_poker_player_proxy.git
+  git_grab git@github.com:dmorrill10/acpc_poker_gui_client.git $root_dir/repositories
+  git_grab git@github.com:dmorrill10/acpc_dealer.git $root_dir/repositories
+  git_grab git@github.com:dmorrill10/acpc_poker_types.git $root_dir/repositories
+  git_grab git@github.com:dmorrill10/acpc_poker_basic_proxy.git $root_dir/repositories
+  git_grab git@github.com:dmorrill10/acpc_poker_player_proxy.git $root_dir/repositories
 else
   echo "Unable to grab repositories from Github through ssh forwarding."
   echo "Either load an ssh key registered with Github to your system's ssh key "
