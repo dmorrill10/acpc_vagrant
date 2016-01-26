@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
-    v.gui = true
+    #v.gui = true
   end
 
   provider = if ENV['VAGRANT_DEFAULT_PROVIDER'].nil? || ENV['VAGRANT_DEFAULT_PROVIDER'].empty?
@@ -72,19 +72,17 @@ Vagrant.configure("2") do |config|
   end
   #------------------------------------------------------
 
-  %w(autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev zlib1g-dev libncurses5-dev libffi-dev libgdbm3 libgdbm-dev libffi-dev).each do |l|
-    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
-  end
-  ruby_version = '2.3.1'
-  config.vm.provision :chef_zero do |chef|
+  ruby_version = '2.3.0'
+  config.vm.provision :chef_solo do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "11.18"
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
-    chef.data_bags_path = ["data_bags"]
+    chef.data_bags_path = "data_bags"
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
     chef.add_recipe :readline
+    chef.add_recipe 'basic_libraries'
     chef.add_recipe :zsh
     chef.add_recipe :logrotate
     chef.add_recipe 'mongodb::default'
@@ -102,10 +100,14 @@ Vagrant.configure("2") do |config|
     #chef.add_recipe 'samba::server'
     chef.add_recipe 'cabal'
     chef.add_recipe 'libxml2'
-    chef.add_recipe 'libxml2::dev'
+    chef.add_recipe 'user_install_directory'
     chef.add_recipe 'opencv'
 
     chef.json = {
+      :user_install_directory => {
+        group: 'vagrant',
+        owner: 'vagrant'
+      },
       :mongodb    => {
         :dbpath  => "/var/lib/mongodb",
         :logpath => "/var/log/mongodb",
@@ -151,9 +153,20 @@ Vagrant.configure("2") do |config|
     }
   end
   config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
-  config.vm.provision :file, source: File.join(Dir.home, '.ssh'), destination: '/home/vagrant/.ssh'
-  config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
-  config.vm.provision :shell, path: 'install_python.sh', privileged: false
-  config.vm.provision :shell, inline: 'sudo apt-get install encfs'
-  config.vm.provision :shell, inline: 'sudo apt-get install zip cmake octave gnuplot'
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa'), destination: '/home/vagrant/.ssh/id_rsa'
+  config.vm.provision :shell, :inline => 'chmod 600 /home/vagrant/.ssh/id_rsa'
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa.pub'), destination: '/home/vagrant/.ssh/id_rsa.pub'
+  config.vm.provision :shell, :inline => 'chmod 644 /home/vagrant/.ssh/id_rsa.pub'
+
+  %w(dos2unix encfs zip cmake octave gnuplot libxml2-dev).each do |l|
+    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
+  end
+  #config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
+  #config.vm.provision :shell, path: 'install_python.sh', privileged: false
+
+  # For opencv
+  %w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).each do |l|
+    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
+  end
+  #config.vm.provision :shell, inline: 'service smbd restart'
 end
