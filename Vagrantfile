@@ -83,7 +83,6 @@ Vagrant.configure("2") do |config|
   %w(dos2unix encfs octave gnuplot).each do |l|
     config.vm.provision :shell, :inline => "apt-get install -y #{l}"
   end
-  config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
 
   # For opencv
   %w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).each do |l|
@@ -102,6 +101,8 @@ Vagrant.configure("2") do |config|
     chef.add_recipe :readline
     chef.add_recipe 'basic_libraries'
     chef.add_recipe :zsh
+    chef.add_recipe :prezto
+    chef.add_recipe :world_machine
     chef.add_recipe :logrotate
     chef.add_recipe 'mongodb::default'
     chef.add_recipe 'sqlite'
@@ -115,16 +116,18 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'redisio::enable'
     chef.add_recipe 'samba::default'
     #chef.add_recipe 'samba::server'
-    chef.add_recipe 'cabal'
+    # chef.add_recipe 'cabal'
     chef.add_recipe 'libxml2'
     chef.add_recipe 'python'
+    chef.add_recipe 'qt5'
     chef.add_recipe 'opencv'
 
     chef.json = {
-      :user_install_directory => {
-        group: 'vagrant',
-        owner: 'vagrant'
-      },
+      :python => { user: 'vagrant' },
+      :zsh => { user: 'vagrant' },
+      :prezto => { user: 'vagrant' },
+      :world_machine => { user: 'vagrant' },
+      :opencv => { user: 'vagrant' },
       :mongodb    => {
         :dbpath  => "/var/lib/mongodb",
         :logpath => "/var/log/mongodb",
