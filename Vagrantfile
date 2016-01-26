@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
   config.ssh.forward_agent = true
 
-  config.vm.network :forwarded_port, guest: 3000, host: 3000
+  config.vm.network :forwarded_port, guest: 3000, host: 3000, auto_correct: true
   config.vm.network "private_network", ip: "10.10.10.10"
 
   config.vm.provider "virtualbox" do |v|
@@ -72,10 +72,28 @@ Vagrant.configure("2") do |config|
   end
   #------------------------------------------------------
 
+  config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa'), destination: '/home/vagrant/.ssh/id_rsa'
+  config.vm.provision :shell, :inline => 'chmod 600 /home/vagrant/.ssh/id_rsa'
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa.pub'), destination: '/home/vagrant/.ssh/id_rsa.pub'
+  config.vm.provision :shell, :inline => 'chmod 644 /home/vagrant/.ssh/id_rsa.pub'
+  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'known_hosts'), destination: '/home/vagrant/.ssh/known_hosts'
+  config.vm.provision :shell, :inline => 'chmod 644 /home/vagrant/.ssh/known_hosts'
+
+  %w(dos2unix encfs octave gnuplot).each do |l|
+    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
+  end
+  config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
+
+  # For opencv
+  %w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).each do |l|
+    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
+  end
+
   ruby_version = '2.3.0'
   config.vm.provision :chef_solo do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
-    chef.version = "11.18"
+    chef.version = "12.6"
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
     chef.data_bags_path = "data_bags"
     chef.add_recipe :apt
@@ -92,15 +110,14 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'git'
     chef.add_recipe 'nodejs'
     chef.add_recipe 'ruby_build'
-    chef.add_recipe 'rbenv::user'
-    chef.add_recipe 'rbenv::vagrant'
+    chef.add_recipe 'ruby_rbenv::user'
     chef.add_recipe 'redisio'
     chef.add_recipe 'redisio::enable'
     chef.add_recipe 'samba::default'
     #chef.add_recipe 'samba::server'
     chef.add_recipe 'cabal'
     chef.add_recipe 'libxml2'
-    chef.add_recipe 'user_install_directory'
+    chef.add_recipe 'python'
     chef.add_recipe 'opencv'
 
     chef.json = {
@@ -128,7 +145,7 @@ Vagrant.configure("2") do |config|
       :git        => {
         :prefix => "/usr/local"
       },
-      :rbenv      => {
+      :ruby_rbenv      => {
         :user_installs => [
           :user => 'vagrant',
           :rubies => [ruby_version],
@@ -151,22 +168,6 @@ Vagrant.configure("2") do |config|
         :loglevel    => "notice"
       }
     }
-  end
-  config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
-  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa'), destination: '/home/vagrant/.ssh/id_rsa'
-  config.vm.provision :shell, :inline => 'chmod 600 /home/vagrant/.ssh/id_rsa'
-  config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa.pub'), destination: '/home/vagrant/.ssh/id_rsa.pub'
-  config.vm.provision :shell, :inline => 'chmod 644 /home/vagrant/.ssh/id_rsa.pub'
-
-  %w(dos2unix encfs zip cmake octave gnuplot libxml2-dev).each do |l|
-    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
-  end
-  #config.vm.provision :shell, path: 'install_terminal_env.sh', privileged: false
-  #config.vm.provision :shell, path: 'install_python.sh', privileged: false
-
-  # For opencv
-  %w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).each do |l|
-    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
   end
   #config.vm.provision :shell, inline: 'service smbd restart'
 end
