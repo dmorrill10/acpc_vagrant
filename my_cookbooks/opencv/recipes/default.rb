@@ -1,16 +1,22 @@
-git "#{Chef::Config[:file_cache_path]}/opencv" do
+%w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).map do |lib|
+  package "#{lib}"
+end
+
+PROJECT_DIRECTORY = "#{Chef::Config[:file_cache_path]}/opencv"
+
+git "#{PROJECT_DIRECTORY}" do
   repository 'https://github.com/Itseez/opencv.git'
   revision '3.1.0'
 end
 
-directory "#{Chef::Config[:file_cache_path]}/opencv/build"
+directory "#{PROJECT_DIRECTORY}/build"
 
 PYTHON = File.join(Dir.home(node['opencv']['user']), '.anaconda/bin/python')
 NUMPY = File.join(Dir.home(node['opencv']['user']), '.anaconda/lib/python3.5/site-packages/numpy/core/include')
 PYTHON_LIB = File.join(Dir.home(node['opencv']['user']), '.anaconda/lib')
 
-bash "make_opencv" do
-  cwd "#{Chef::Config[:file_cache_path]}/opencv/build"
+bash "Create opencv Makefile" do
+  cwd "#{PROJECT_DIRECTORY}/build"
   code <<-EOH
 cmake \
 -D ENABLE_SSE3=OFF \
@@ -38,13 +44,18 @@ cmake \
 -D INSTALL_PYTHON_EXAMPLES=OFF \
 -D BUILD_EXAMPLES=OFF \
 -D BUILD_opencv_python3=ON ..
-make -j2
 EOH
+  not_if { File.exist?("#{PROJECT_DIRECTORY}/build/Makefile") }
 end
 
-bash 'install_opencv' do
+bash 'Make opencv' do
+  cwd "#{PROJECT_DIRECTORY}/build"
+  code 'make -j2'
+end
+
+bash 'Install opencv' do
   user "root"
-  cwd "#{Chef::Config[:file_cache_path]}/opencv/build"
+  cwd "#{PROJECT_DIRECTORY}/build"
   code <<-EOH
 make install
 ldconfig

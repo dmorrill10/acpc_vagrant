@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
-    #v.gui = true
+    v.gui = true
   end
 
   provider = if ENV['VAGRANT_DEFAULT_PROVIDER'].nil? || ENV['VAGRANT_DEFAULT_PROVIDER'].empty?
@@ -80,21 +80,11 @@ Vagrant.configure("2") do |config|
   config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'known_hosts'), destination: '/home/vagrant/.ssh/known_hosts'
   config.vm.provision :shell, :inline => 'chmod 644 /home/vagrant/.ssh/known_hosts'
 
-  %w(dos2unix encfs octave gnuplot).each do |l|
-    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
-  end
-
-  # For opencv
-  %w(pkg-config libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran).each do |l|
-    config.vm.provision :shell, :inline => "apt-get install -y #{l}"
-  end
-
   ruby_version = '2.3.0'
   config.vm.provision :chef_solo do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
     chef.version = "12.6"
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
-    chef.data_bags_path = "data_bags"
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
@@ -114,13 +104,12 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'ruby_rbenv::user'
     chef.add_recipe 'redisio'
     chef.add_recipe 'redisio::enable'
-    chef.add_recipe 'samba::default'
-    #chef.add_recipe 'samba::server'
     # chef.add_recipe 'cabal'
     chef.add_recipe 'libxml2'
     chef.add_recipe 'python'
     chef.add_recipe 'qt5'
     chef.add_recipe 'opencv'
+    chef.add_recipe 'extra'
 
     chef.json = {
       :python => { user: 'vagrant' },
@@ -157,7 +146,8 @@ Vagrant.configure("2") do |config|
             ruby_version => [
              { 'name' => 'bundler' },
              { 'name' => 'pry' },
-             { 'name' => 'awesome_print' }
+             { 'name' => 'awesome_print' },
+             { 'name' => 'rmate' }
             ]
           }
         ]

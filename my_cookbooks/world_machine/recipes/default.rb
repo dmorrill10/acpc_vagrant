@@ -3,9 +3,9 @@ wm_dir = File.join(config_dir, '.config/world-machine')
 
 directory config_dir
 
-git 'Install world-machine' do
-  path File.join(config_dir, 'world-machine')
-  source 'git@github.com:dmorrill10/world-machine.git'
+git File.join(config_dir, 'world-machine') do
+  user node['world_machine']['user']
+  repository 'https://github.com/dmorrill10/world-machine.git'
   revision 'modular'
 end
 
