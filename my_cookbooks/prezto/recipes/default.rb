@@ -10,10 +10,8 @@ git prezto_dir do
 end
 
 Dir.glob(File.join(Dir.home(node['prezto']['user']), '.zprezto/runcoms/z*')).each do |f|
-  link f do
-    to_file = File.join(Dir.home(node['prezto']['user']), ".#{File.basename(f)}")
-    to to_file
+  link File.join(Dir.home(node['prezto']['user']), ".#{File.basename(f)}") do
+    to f
     link_type :symbolic
-    not_if { File.exist?(to_file) }
   end
 end

@@ -87,26 +87,29 @@ Vagrant.configure("2") do |config|
     chef.cookbooks_path = ["cookbooks", "my_cookbooks"]
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
+    chef.add_recipe 'libxml2'
     chef.add_recipe :openssl
     chef.add_recipe :readline
-    chef.add_recipe 'basic_libraries'
+    chef.add_recipe :basic_libraries
+    chef.add_recipe :git
+    chef.add_recipe :subversion
     chef.add_recipe :zsh
     chef.add_recipe :prezto
     chef.add_recipe :world_machine
+
+    chef.add_recipe 'ruby'
+    chef.add_recipe 'python'
+
     chef.add_recipe :logrotate
     chef.add_recipe 'mongodb::default'
     chef.add_recipe 'sqlite'
-    chef.add_recipe 'subversion'
-    chef.add_recipe 'vim'
-    chef.add_recipe 'git'
     chef.add_recipe 'nodejs'
-    chef.add_recipe 'ruby_build'
-    chef.add_recipe 'ruby_rbenv::user'
     chef.add_recipe 'redisio'
     chef.add_recipe 'redisio::enable'
-    # chef.add_recipe 'cabal'
-    chef.add_recipe 'libxml2'
-    chef.add_recipe 'python'
+
+    chef.add_recipe 'vim'
+
+    chef.add_recipe 'cabal'
     chef.add_recipe 'qt5'
     chef.add_recipe 'opencv'
     chef.add_recipe 'extra'
@@ -137,9 +140,16 @@ Vagrant.configure("2") do |config|
       :git        => {
         :prefix => "/usr/local"
       },
-      :ruby_rbenv      => {
+      :ruby      => {
         :user_installs => [
           :user => 'vagrant',
+          :gemrc => {
+            verbose: true,
+            gem: '--no-ri --no-rdoc',
+            backtrace: false,
+            bulk_threshold: 1000,
+            benchmark: false
+          },
           :rubies => [ruby_version],
           :global => ruby_version,
           :gems => {
@@ -162,5 +172,4 @@ Vagrant.configure("2") do |config|
       }
     }
   end
-  #config.vm.provision :shell, inline: 'service smbd restart'
 end

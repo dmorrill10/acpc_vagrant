@@ -1,9 +1,12 @@
 config_dir = File.join(Dir.home(node['world_machine']['user']), '.config')
-wm_dir = File.join(config_dir, '.config/world-machine')
+wm_dir = File.join(config_dir, 'world-machine')
 
-directory config_dir
+directory config_dir do
+  user node['world_machine']['user']
+  group node['world_machine']['user']
+end
 
-git File.join(config_dir, 'world-machine') do
+git wm_dir do
   user node['world_machine']['user']
   repository 'https://github.com/dmorrill10/world-machine.git'
   revision 'modular'

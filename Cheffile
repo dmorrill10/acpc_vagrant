@@ -16,8 +16,5 @@ cookbook "git", '~> 4.2.2'
 cookbook "nodejs", '~> 2.4.0'
 cookbook "redisio"
 cookbook "logrotate"
-cookbook "ruby_build", '~> 0.8.0'
-cookbook 'ruby_rbenv', '~> 1.0'
-cookbook 'opencv', '~> 0.0.6'
 cookbook 'libxml2'
 cookbook 'cabal'

@@ -3,6 +3,6 @@
 end
 
 # Desktops
-%w(ubuntu-gnome-desktop i3 virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11).map do |lib|
+%w(ubuntu-gnome-desktop xfce4 i3 dkms).map do |lib|
   package "#{lib}"
 end
