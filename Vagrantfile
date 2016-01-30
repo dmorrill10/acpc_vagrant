@@ -36,8 +36,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |v|
     v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
-    v.gui = true
+    v.gui = false
   end
+
+  config.vm.synced_folder Dir.home, "/host_home"
 
   provider = if ENV['VAGRANT_DEFAULT_PROVIDER'].nil? || ENV['VAGRANT_DEFAULT_PROVIDER'].empty?
     'virtualbox'
