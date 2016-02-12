@@ -33,7 +33,7 @@ execute "Install Anaconda" do
   not_if { File.exists?(install) }
 end
 
-pypy_version = 'pypy-2.4.0-linux64'
+pypy_version = 'pypy3-2.4.0-linux64'
 pypy_url = "https://bitbucket.org/pypy/pypy/downloads/#{pypy_version}.tar.bz2"
 pypy_compressed = pypy_url.split('/').last
 
