@@ -35,7 +35,7 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: "10.10.10.10"
 
   config.vm.provider "virtualbox" do |v|
-    v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
+    v.customize ["modifyvm", :id, "--memory", "8168", "--ioapic", "on", "--cpus", 2]
     v.gui = false
   end
 
@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
   end
   #------------------------------------------------------
 
-  config.vm.provision :shell, :inline => create_swap(1024, "/mnt/swapfile1")
+  config.vm.provision :shell, :inline => create_swap(10240, "/mnt/swapfile1")
   config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa'), destination: '/home/vagrant/.ssh/id_rsa'
   config.vm.provision :shell, :inline => 'chmod 600 /home/vagrant/.ssh/id_rsa'
   config.vm.provision :file, source: File.join(Dir.home, '.ssh', 'id_rsa.pub'), destination: '/home/vagrant/.ssh/id_rsa.pub'
