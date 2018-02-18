@@ -76,14 +76,14 @@ Vagrant.configure("2") do |config|
   end
   config.vm.provision :chef_solo do |chef|
     chef.binary_env = 'RUBY_CONFIGURE_OPTS=--disable-install-doc'
-    chef.version = "11.18"
+    chef.version = "13.7"
     chef.cookbooks_path = ["cookbooks"]
     chef.add_recipe :apt
     chef.add_recipe 'build-essential'
     chef.add_recipe :openssl
     chef.add_recipe :readline
     chef.add_recipe :logrotate
-    chef.add_recipe 'mongodb::default'
+    chef.add_recipe 'sc-mongodb::default'
     chef.add_recipe 'sqlite'
     chef.add_recipe 'subversion'
     chef.add_recipe 'vim'
@@ -91,12 +91,11 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'git'
     chef.add_recipe 'nodejs'
     chef.add_recipe 'ruby_build'
-    chef.add_recipe 'rbenv::user'
-    chef.add_recipe 'rbenv::vagrant'
-    chef.add_recipe 'redisio'
-    chef.add_recipe 'redisio::enable'
+    chef.add_recipe 'ruby_rbenv::user'
+    chef.add_recipe "ruby_rbenv::user_install"
+    chef.add_recipe 'redis'
     chef.json = {
-      :mongodb    => {
+      'mongodb_instance'    => {
         :dbpath  => "/var/lib/mongodb",
         :logpath => "/var/log/mongodb",
         :port    => "27017"
@@ -138,14 +137,6 @@ Vagrant.configure("2") do |config|
             ]
           }
         ]
-      },
-      :redisio      => {
-        :bind        => "127.0.0.1",
-        :port        => "6379",
-        :config_path => "/etc/redis/redis.conf",
-        :daemonize   => "yes",
-        :timeout     => "300",
-        :loglevel    => "notice"
       }
     }
   end
