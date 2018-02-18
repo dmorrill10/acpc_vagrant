@@ -42,6 +42,7 @@ if [ "$?" -le "1" ]; then
   git_grab git@github.com:dmorrill10/acpc_poker_types.git
   git_grab git@github.com:dmorrill10/acpc_poker_basic_proxy.git
   git_grab git@github.com:dmorrill10/acpc_poker_player_proxy.git
+  git_grab git@github.com:dmorrill10/acpc_table_manager.git
 else
   echo "Unable to grab repositories from Github through ssh forwarding."
   echo "Either load an ssh key registered with Github to your system's ssh key "

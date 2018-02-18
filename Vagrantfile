@@ -93,7 +93,7 @@ Vagrant.configure("2") do |config|
     chef.add_recipe 'ruby_build'
     chef.add_recipe 'ruby_rbenv::user'
     chef.add_recipe "ruby_rbenv::user_install"
-    chef.add_recipe 'redis'
+    chef.add_recipe 'redis::install_from_package'
     chef.json = {
       'mongodb_instance'    => {
         :dbpath  => "/var/lib/mongodb",
